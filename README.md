@@ -1,96 +1,106 @@
 # GenAI Systems: UNT Intelligent Assistant
 
-Welcome to **GenAI Systems**, your go-to intelligent assistant designed to provide comprehensive support for the University of North Texas (UNT) community. Whether you're a prospective student, current student, faculty member, or visitor, GenAI Systems is here to assist with all UNT-related queries.
+Welcome to **GenAI Systems**, your intelligent assistant tailored for the **University of North Texas (UNT)** community. Whether you're a prospective student, current student, faculty member, or visitor, GenAI Systems is here to assist with all UNT-related queries.
 
 ---
 
-## Features
+## 🌟 Features
 
 GenAI Systems can help you with:
 
-- **Admissions and Programs**: Get detailed information about UNT’s academic programs, admissions requirements, tuition fees, and scholarships.
-- **Campus Life**: Learn about campus resources, events, and student services.
-- **Policies and Deadlines**: Stay informed about UNT’s policies, academic guidelines, and important deadlines.
-- **Research Opportunities**: Discover UNT’s research initiatives, faculty expertise, and student organizations.
-- **Technical and Administrative Support**: Solve UNT-related technical issues or administrative queries.
+- **🎓 Admissions & Programs**: Get detailed information about UNT’s academic programs, admission requirements, tuition fees, and scholarships.
+- **🏛️ Campus Life**: Discover campus resources, events, student services, and organizations.
+- **📜 Policies & Deadlines**: Stay updated on UNT’s academic guidelines, deadlines, and policies.
+- **🔬 Research Opportunities**: Explore UNT’s research initiatives, faculty expertise, and student organizations.
+- **🛠 Technical & Administrative Support**: Resolve UNT-related technical or administrative issues efficiently.
 
 ---
 
-## How It Works
+## ⚙️ How It Works
 
 1. **Ask a Question**: Simply type your UNT-related query into the chat interface.
-2. **Receive Answers**: GenAI Systems provides accurate and structured responses tailored to your needs.
+2. **Receive Answers**: GenAI Systems provides accurate, structured responses tailored to your needs.
 3. **Specialized Agents**:
-   - _Email Composer_: Helps draft professional emails for academic settings.
-   - _Research Paper Assistant_: Guides students in structuring and developing research papers.
-   - _Academic Concepts Guide_: Explains complex academic concepts and theories.
-   - _Resource Redirector_: Directs users to relevant UNT resources and websites.
-   - _General UNT Assistant_: Provides general information about UNT.
+   - ✉️ **Email Composer**: Helps draft professional emails for academic settings.
+   - 📖 **Research Paper Assistant**: Guides students in structuring and developing research papers.
+   - 🧠 **Academic Concepts Guide**: Explains complex academic theories and concepts.
+   - 🔗 **Resource Redirector**: Directs users to relevant UNT resources and websites.
+   - 🏫 **General UNT Assistant**: Provides general UNT-related information.
 
 ---
 
-## Installation
+## 🛠 Installation Guide
 
 To deploy GenAI Systems locally, follow these steps:
 
-### 1. Clone the Repository
+### 1️⃣ Clone the Repository
 
+```sh
 git clone <repository-url>
 cd <repository-directory>
+```
 
-text
-
-### 2. Build Docker Images
+### 2️⃣ Build Docker Images
 
 Build the application container:
-docker build -t genai-systems .
 
-text
+```sh
+docker build -t genai-systems .
+```
 
 Build the vLLM server container:
+
+```sh
 docker build -f Dockerfile.vllm -t vllm-server .
+```
 
-text
-
-### 3. Run Containers
+### 3️⃣ Run Containers
 
 Start the vLLM server:
-docker run --name vllm-server -p 5000:5000 vllm-server
 
-text
+```sh
+docker run --name vllm-server -p 5000:5000 vllm-server
+```
 
 Start the Chainlit application:
-docker run --name genai-systems -p 8000:8000 genai-systems
 
-text
+```sh
+docker run --name genai-systems -p 8000:8000 genai-systems
+```
 
 ---
 
-## Configuration
+## 🔧 Configuration
 
-### Environment Variables
+### 🌍 Environment Variables
 
-Set environment variables in `Dockerfile` or `.env` file:
+Set the following environment variables in `.env` or `Dockerfile`:
 
-- `MODEL_ID`: AI model identifier (default: `google/gemma-3-27b-it`)
-- `INFERENCE_SERVER_URL`: URL for the inference server (default: `http://vllm-server:5000/v1`)
-- `MAX_RETRIES`: Number of retries for API calls (default: `3`)
-- `RETRY_DELAY`: Delay between retries (default: `2` seconds)
-- `REQUEST_TIMEOUT`: Timeout for API requests (default: `30` seconds)
+```ini
+MODEL_ID=google/gemma-3-27b-it
+INFERENCE_SERVER_URL=http://vllm-server:5000/v1
+MAX_RETRIES=3
+RETRY_DELAY=2  # in seconds
+REQUEST_TIMEOUT=30  # in seconds
+```
 
-### Application Settings
+### ⚙️ Application Settings (`Configure.toml`)
 
-Modify settings in `Configure.toml`:
-
-- **Telemetry**: Enable or disable telemetry (`enable_telemetry = true`).
-- **Session Timeout**: Set session expiration duration (`user_session_timeout = 1296000` seconds).
+- **Telemetry**: Enable or disable (`enable_telemetry = true`).
+- **Session Timeout**: Set session expiration (`user_session_timeout = 1296000` seconds).
 - **CORS Configuration**: Define allowed origins (`allow_origins = ["*"]`).
 
 ---
 
-## Dependencies
+## 📦 Dependencies
 
 Install Python dependencies listed in `requirements.txt`:
+
+```sh
+pip install -r requirements.txt
+```
+
+Key dependencies:
 
 - `chainlit>=0.7.0`
 - `openai>=1.0.0`
@@ -100,39 +110,41 @@ Install Python dependencies listed in `requirements.txt`:
 
 ---
 
-## Usage
+## 🚀 Usage
 
 Visit the application at [http://genai.unt.edu](http://genai.unt.edu) after starting the containers.
 
-### Starter Prompts
+🔐 **Access Note**: The system is behind a UNT proxy server. Request access from the university if needed.
 
-Use predefined starter prompts for common tasks:
+### 🔹 Starter Prompts
 
-- Compose an email to a professor.
-- Structure a research paper.
-- Explain academic concepts like quantum mechanics.
-- Redirect to UNT graduate admissions requirements.
+Use predefined prompts for common tasks:
 
----
-
-## Contributing
-
-We welcome contributions from the community! To contribute:
-
-1. Fork this repository.
-2. Create a feature branch (`git checkout -b feature-name`).
-3. Commit your changes (`git commit -m "Add feature"`).
-4. Push your branch (`git push origin feature-name`).
-5. Open a pull request.
+- "Compose an email to a professor."
+- "Structure a research paper."
+- "Explain academic concepts like quantum mechanics."
+- "Redirect me to UNT graduate admissions requirements."
 
 ---
 
-## License
+## 🤝 Contributing
 
-This project is licensed under the MIT License.
+We welcome contributions! Follow these steps:
+
+1. **Fork** the repository.
+2. **Create a branch**: `git checkout -b feature-name`
+3. **Commit changes**: `git commit -m "Add feature"`
+4. **Push branch**: `git push origin feature-name`
+5. **Submit a pull request** 🎉
 
 ---
 
-## Contact
+## 📜 License
 
-For support or inquiries, please contact us at [abinesha312@gmail.com.com](mailto:abinesha312@gmail.com).
+This project is licensed under the **MIT License**.
+
+---
+
+## 📩 Contact
+
+For support or inquiries, reach out at [abinesha312@gmail.com](mailto:abinesha312@gmail.com).
