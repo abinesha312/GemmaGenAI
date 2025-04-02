@@ -1,0 +1,34 @@
+Pydantic
+
+
+Classification System (src/models/classification.py):
+
+Uses Pydantic models for type safety and validation
+Implements TF-IDF vectorization and cosine similarity for text classification
+Provides detailed agent profiles with capabilities and priorities
+Returns classification results with confidence scores and alternatives
+
+Key Features:
+
+Agent Profiles: Each agent has a detailed profile including:
+Type and name
+Description and capabilities
+Keywords and prompt template
+Priority level for classification
+Classification Process:
+Uses TF-IDF vectorization to convert text to numerical features
+Calculates cosine similarity between message and agent keywords
+Adjusts similarity scores based on agent priority
+Returns best match with confidence score and alternatives
+Flexible Configuration:
+Easy to add new agents or modify existing ones
+Keywords and capabilities can be updated without code changes
+Priority system allows for fine-tuning of classification
+
+Benefits:
+
+More accurate classification using semantic similarity
+Better handling of variations in user input
+Provides confidence scores for better decision making
+Maintains type safety with Pydantic models
+Easy to extend and maintain
