@@ -1,150 +1,150 @@
-# GenAI Systems: UNT Intelligent Assistant
+# 🎓 UNT Multi-Agent System
 
-Welcome to **GenAI Systems**, your intelligent assistant tailored for the **University of North Texas (UNT)** community. Whether you're a prospective student, current student, faculty member, or visitor, GenAI Systems is here to assist with all UNT-related queries.
+A sophisticated multi-agent system for the University of North Texas (UNT) that provides specialized assistance for various academic tasks using the 🧠 Gemma 3 27B model.
 
----
+## 📌 Overview
 
-## 🌟 Features
+This project implements a multi-agent system with specialized agents for different academic tasks:
 
-GenAI Systems can help you with:
+- 📧 **Email Composition Agent**: Helps draft professional academic emails
+- 📑 **Research Paper Agent**: Assists with research paper composition and analysis
+- 📚 **Academic Concepts Agent**: Explains academic concepts and theories
+- 🔗 **Redirect Agent**: Directs users to appropriate UNT resources
+- 🏫 **General Agent**: Handles general queries about UNT
 
-- **🎓 Admissions & Programs**: Get detailed information about UNT’s academic programs, admission requirements, tuition fees, and scholarships.
-- **🏛️ Campus Life**: Discover campus resources, events, student services, and organizations.
-- **📜 Policies & Deadlines**: Stay updated on UNT’s academic guidelines, deadlines, and policies.
-- **🔬 Research Opportunities**: Explore UNT’s research initiatives, faculty expertise, and student organizations.
-- **🛠 Technical & Administrative Support**: Resolve UNT-related technical or administrative issues efficiently.
+The system uses a sophisticated classification mechanism to determine which agent should handle a user query, and each agent follows a structured, step-by-step reasoning approach to provide comprehensive responses.
 
----
+## 🚀 Features
 
-## ⚙️ How It Works
+- 🤖 **Specialized Agents**: Each agent is tailored to a specific academic task
+- 🎯 **Intelligent Classification**: Uses TF-IDF vectorization and cosine similarity to classify user queries
+- 📝 **Structured Responses**: All agents provide well-formatted, comprehensive responses
+- 🛠 **Pydantic Models**: Input validation and structured data handling
+- 💻 **Chainlit Interface**: Modern web UI for interacting with the agents
+- ⚡ **vLLM Integration**: Efficient inference using the Gemma 3 27B model
 
-1. **Ask a Question**: Simply type your UNT-related query into the chat interface.
-2. **Receive Answers**: GenAI Systems provides accurate, structured responses tailored to your needs.
-3. **Specialized Agents**:
-   - ✉️ **Email Composer**: Helps draft professional emails for academic settings.
-   - 📖 **Research Paper Assistant**: Guides students in structuring and developing research papers.
-   - 🧠 **Academic Concepts Guide**: Explains complex academic theories and concepts.
-   - 🔗 **Resource Redirector**: Directs users to relevant UNT resources and websites.
-   - 🏫 **General UNT Assistant**: Provides general UNT-related information.
+## 📁 Project Structure
 
----
-
-## 🛠 Installation Guide
-
-To deploy GenAI Systems locally, follow these steps:
-
-### 1️⃣ Clone the Repository
-
-```sh
-git clone <repository-url>
-cd <repository-directory>
+```
+.
+├── 🐳 Dockerfile              # Container definition for the main application
+├── 🐳 Dockerfile.vllm         # Container definition for the vLLM server
+├── 📄 requirements.txt        # Python dependencies
+├── 🛠 run_podman.sh           # Script to build and run the application with Podman
+└── 📂 src/
+    ├── 🚀 app.py              # Main application entry point
+    ├── 🤖 agents/
+    │   ├── 🔧 base_agent.py   # Base agent class with common functionality
+    │   ├── 📌 registry.py     # Agent registry and classification
+    │   └── 🎯 specialized_agents.py  # Specialized agent implementations
+    ├── ⚙️ config/
+    │   ├── 📝 prompts.py      # Agent prompts and templates
+    │   └── 🔧 settings.py     # Application settings and configuration
+    └── 📂 models/
+        ├── 📊 classification.py  # Query classification system
+        └── ✅ query_models.py    # Pydantic models for query validation
 ```
 
-### 2️⃣ Build Docker Images
+## 🛠 Prerequisites
 
-Build the application container:
+- 🐍 Python 3.10+
+- 🛢 Podman
+- 🍺 Homebrew (for Linux)
+- 🎮 CUDA-capable GPU (for vLLM server)
 
-```sh
-docker build -t genai-systems .
-```
+## 📥 Installation
 
-Build the vLLM server container:
+1. Clone the repository:
 
-```sh
-docker build -f Dockerfile.vllm -t vllm-server .
-```
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
 
-### 3️⃣ Run Containers
+2. Install Podman using Homebrew:
 
-Start the vLLM server:
+   ```bash
+   brew install podman
+   ```
 
-```sh
-docker run --name vllm-server -p 5000:5000 vllm-server
-```
+3. Initialize Podman (if needed):
+   ```bash
+   podman machine init
+   podman machine start
+   ```
 
-Start the Chainlit application:
+## ▶️ Running the Application
 
-```sh
-docker run --name genai-systems -p 8000:8000 genai-systems
-```
+1. Make the run script executable:
 
----
+   ```bash
+   chmod +x run_podman.sh
+   ```
 
-## 🔧 Configuration
+2. Run the application:
 
-### 🌍 Environment Variables
+   ```bash
+   ./run_podman.sh
+   ```
 
-Set the following environment variables in `.env` or `Dockerfile`:
+3. Access the application at `http://localhost:8000`
 
-```ini
-MODEL_ID=google/gemma-3-27b-it
-INFERENCE_SERVER_URL=http://vllm-server:5000/v1
-MAX_RETRIES=3
-RETRY_DELAY=2  # in seconds
-REQUEST_TIMEOUT=30  # in seconds
-```
+## 🔧 Environment Variables
 
-### ⚙️ Application Settings (`Configure.toml`)
+The application uses the following environment variables:
 
-- **Telemetry**: Enable or disable (`enable_telemetry = true`).
-- **Session Timeout**: Set session expiration (`user_session_timeout = 1296000` seconds).
-- **CORS Configuration**: Define allowed origins (`allow_origins = ["*"]`).
+- 🏷 `MODEL_ID`: The model ID to use (default: "google/gemma-3-27b-it")
+- 🌐 `INFERENCE_SERVER_URL`: URL of the vLLM server (default: "http://vllm-server:5000/v1")
+- 🔄 `MAX_RETRIES`: Maximum number of retries for API calls (default: 3)
+- ⏳ `RETRY_DELAY`: Delay between retries in seconds (default: 2)
+- ⏱ `REQUEST_TIMEOUT`: Timeout for API requests in seconds (default: 30)
+- 🌍 `CHAINLIT_HOST`: Host for the Chainlit server (default: "0.0.0.0")
+- 📡 `CHAINLIT_PORT`: Port for the Chainlit server (default: 8000)
+- 📜 `LOG_LEVEL`: Logging level (default: "INFO")
 
----
+## 🤖 Agent Capabilities
 
-## 📦 Dependencies
+### 📧 Email Composition Agent
 
-Install Python dependencies listed in `requirements.txt`:
+- Drafts professional academic emails
+- Follows proper email structure and formatting
+- Maintains appropriate tone and style
+- Handles common scenarios like extension requests and meeting scheduling
 
-```sh
-pip install -r requirements.txt
-```
+### 📑 Research Paper Agent
 
-Key dependencies:
+- Helps with research paper planning and structure
+- Provides guidance on research methodology
+- Ensures proper academic writing standards
+- Supports various citation styles and formats
 
-- `chainlit>=0.7.0`
-- `openai>=1.0.0`
-- `python-dotenv>=1.0.0`
-- `requests>=2.31.0`
-- `tenacity>=8.2.0`
+### 📚 Academic Concepts Agent
 
----
+- Explains academic concepts and theories
+- Adapts explanations to different difficulty levels
+- Provides learning support and resources
+- Covers various subject areas
 
-## 🚀 Usage
+### 🔗 Redirect Agent
 
-Visit the application at [http://genai.unt.edu](http://genai.unt.edu) after starting the containers.
+- Directs users to relevant UNT resources
+- Provides detailed information about available services
+- Includes direct links to resources
+- Offers contact information and usage guidelines
 
-🔐 **Access Note**: The system is behind a UNT proxy server. Request access from the university if needed.
+## 🏗 Development
 
-### 🔹 Starter Prompts
+To modify or extend the system:
 
-Use predefined prompts for common tasks:
-
-- "Compose an email to a professor."
-- "Structure a research paper."
-- "Explain academic concepts like quantum mechanics."
-- "Redirect me to UNT graduate admissions requirements."
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Follow these steps:
-
-1. **Fork** the repository.
-2. **Create a branch**: `git checkout -b feature-name`
-3. **Commit changes**: `git commit -m "Add feature"`
-4. **Push branch**: `git push origin feature-name`
-5. **Submit a pull request** 🎉
-
----
+1. Update the agent prompts in `src/config/prompts.py`
+2. Modify the agent implementations in `src/agents/specialized_agents.py`
+3. Adjust the classification system in `src/models/classification.py`
+4. Update the Pydantic models in `src/models/query_models.py`
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.
+[MIT License]
 
----
+## 📞 Contact
 
-## 📩 Contact
-
-For support or inquiries, reach out at [abinesha312@gmail.com](mailto:abinesha312@gmail.com).
+[abinesha312@gmail.com](mailto:abinesha312@gmail.com)
