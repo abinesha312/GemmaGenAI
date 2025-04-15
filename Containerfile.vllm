@@ -1,0 +1,40 @@
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Install PyTorch with CUDA support
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Create mount points
+RUN mkdir -p /home/models/FAISS_INGEST/vectorstore
+
+# Set environment variables for vLLM
+ENV CUDA_VISIBLE_DEVICES=2,3,4,5
+ENV VLLM_LOGGING_LEVEL=DEBUG
+ENV VLLM_DEVICE=cuda
+ENV VLLM_USE_CUDA_GRAPH=1
+ENV VLLM_GPU_MEMORY_UTILIZATION=0.3
+ENV VLLM_TENSOR_PARALLEL_SIZE=4
+ENV VLLM_PLATFORM=cuda
+
+# Run vLLM server
+CMD ["python3", "-m", "vllm.entrypoints.openai.api_server", \
+    "--host", "0.0.0.0", \
+    "--port", "5000", \
+    "--model", "google/gemma-3-27b-it", \
+    "--tensor-parallel-size", "4", \
+    "--max-model-len", "4096", \
+    "--trust-remote-code", \
+    "--gpu-memory-utilization", "0.5"]
