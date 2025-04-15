@@ -8,7 +8,7 @@ A high-performance multi-agent AI assistant designed for the University of North
 
 ### Video Walkthrough
 
-[![Application Demo]](https://youtu.be/zfd0Z0ckva0)
+[![Application Demo]](https://www.youtube.com/watch?v=zfd0Z0ckva0)
 
 ---
 
