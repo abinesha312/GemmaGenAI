@@ -10,14 +10,13 @@ A high-performance multi-agent AI assistant designed for the University of North
 
 [![Application Demo](https://img.youtube.com/vi/zfd0Z0ckva0/0.jpg)](https://youtu.be/zfd0Z0ckva0)
 
-
 ---
 
 ## 🖼 Interface
 
 ### Real-Time System View
 
-![Application Screenshot](image.png)
+![Application Screenshot](demo/image.png)
 
 _Screenshot shows eight NVIDIA H100 GPUs running parallel inference threads with load distributions across GPUs 4–7 using `vLLM`._
 
