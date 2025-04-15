@@ -69,7 +69,7 @@ _Screenshot shows eight NVIDIA H100 GPUs running parallel inference threads with
 
 - **vLLM Inference Server**:
 
-  - Hosts the Gemma-3-27B model
+  - Hosts the Gemma-3-27B model & LlaMa 3.2 90B Vision Instruct Model
   - Optimized for parallel generation
 
 - **Chainlit Frontend**:
