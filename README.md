@@ -1,147 +1,138 @@
-Here's a revamped, professional `README.md` file incorporating the new screenshot, video, and performance insights from your GPU monitoring terminal. I've added a benchmarks section based on your current system's activity and removed the less formal icons. Let me know if you'd like to further tailor this to a specific audience or deployment context.
+# GenAI Systems: UNT Intelligent Assistant
+
+Welcome to **GenAI Systems**, your go-to intelligent assistant designed to provide comprehensive support for the University of North Texas (UNT) community. Whether you're a prospective student, current student, faculty member, or visitor, GenAI Systems is here to assist with all UNT-related queries.
 
 ---
 
-```markdown
-# UNT AI Assistant
+## Features
 
-A high-performance multi-agent AI assistant designed for the University of North Texas. Built on the **Gemma 3 27B** model and accelerated with **vLLM**, the system provides targeted academic support via a web-based interface powered by **Chainlit**.
+GenAI Systems can help you with:
 
----
-
-## 🎥 Demo
-
-### Video Walkthrough
-
-[![Application Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://youtu.be/YOUR_VIDEO_ID)
+- **Admissions and Programs**: Get detailed information about UNT’s academic programs, admissions requirements, tuition fees, and scholarships.
+- **Campus Life**: Learn about campus resources, events, and student services.
+- **Policies and Deadlines**: Stay informed about UNT’s policies, academic guidelines, and important deadlines.
+- **Research Opportunities**: Discover UNT’s research initiatives, faculty expertise, and student organizations.
+- **Technical and Administrative Support**: Solve UNT-related technical issues or administrative queries.
 
 ---
 
-## 🖼 Interface
+## How It Works
 
-### Real-Time System View
-
-![Application Screenshot](image.png)
-
-*Screenshot shows eight NVIDIA H100 GPUs running parallel inference threads with load distributions across GPUs 4–7 using `vLLM`.*
-
----
-
-## 🔍 Features
-
-- **Specialized Agents** for academic scenarios:
-  - Email Composition
-  - Research Paper Support
-  - Academic Concepts Guide
-  - UNT Resources Navigator
-  - General Campus Information
-
-- **Modular Multi-Agent System**:
-  - Intelligent query classification with TF-IDF and cosine similarity
-  - Clean, structured response formatting
-
-- **Optimized Inference Pipeline**:
-  - Runs on NVIDIA H100 with fine-tuned batching via `vLLM`
-  - Efficient memory and compute utilization across GPUs
-
-- **Interactive UI**:
-  - Built with Chainlit for smooth real-time interactions
-  - Custom routing for each academic use case
+1. **Ask a Question**: Simply type your UNT-related query into the chat interface.
+2. **Receive Answers**: GenAI Systems provides accurate and structured responses tailored to your needs.
+3. **Specialized Agents**:
+   - _Email Composer_: Helps draft professional emails for academic settings.
+   - _Research Paper Assistant_: Guides students in structuring and developing research papers.
+   - _Academic Concepts Guide_: Explains complex academic concepts and theories.
+   - _Resource Redirector_: Directs users to relevant UNT resources and websites.
+   - _General UNT Assistant_: Provides general information about UNT.
 
 ---
 
-## 📊 Benchmarks (Observed)
+## Installation
 
-| Metric                          | Value                                |
-|---------------------------------|--------------------------------------|
-| GPUs Used                       | 8x NVIDIA H100                       |
-| Inference Engine                | vLLM + Gemma 3 27B                   |
-| Max GPU Utilization (Observed) | ~53% on GPU 4 and GPU 5              |
-| GPU Memory Allocation           | ~50.6–59.6 GB across active GPUs     |
-| Power Draw                      | ~91W per GPU (under load)            |
-| Input Model Length              | 4096 tokens                          |
-| Tensor Parallelism              | 4                                    |
-| Launch Mode                     | Multi-GPU, Multi-process via Podman  |
+To deploy GenAI Systems locally, follow these steps:
 
-> *Note: GPUs 0–3 remain idle, while GPUs 4–7 actively handle batched inference requests from concurrent clients.*
+### 1. Clone the Repository
 
----
+git clone <repository-url>
+cd <repository-directory>
 
-## 🧱 Architecture
+text
 
-- **vLLM Inference Server**:
-  - Hosts the Gemma-3-27B model
-  - Optimized for parallel generation
+### 2. Build Docker Images
 
-- **Chainlit Frontend**:
-  - Manages UI and routes queries to appropriate agents
-  - Provides response formatting and interface customization
+Build the application container:
+docker build -t genai-systems .
 
----
+text
 
-## 🛠 Installation
+Build the vLLM server container:
+docker build -f Dockerfile.vllm -t vllm-server .
 
-### Prerequisites
+text
 
-- Podman
-- Python 3.10+
-- NVIDIA GPU with CUDA support (tested with H100)
+### 3. Run Containers
 
-### Setup Steps
+Start the vLLM server:
+docker run --name vllm-server -p 5000:5000 vllm-server
 
-```bash
-git clone https://github.com/yourusername/unt-ai-assistant.git
-cd unt-ai-assistant
+text
 
-mkdir -p models/FAISS_INGEST/vectorstore
-mkdir -p logs
+Start the Chainlit application:
+docker run --name genai-systems -p 8000:8000 genai-systems
 
-chmod +x podman_run.sh
-./podman_run.sh
-```
+text
 
 ---
 
-## 🔗 Access
+## Configuration
 
-- vLLM Server: [http://localhost:5000](http://localhost:5000)
-- Chainlit UI: [http://localhost:8000](http://localhost:8000)
+### Environment Variables
 
----
+Set environment variables in `Dockerfile` or `.env` file:
 
-## ⚙ Configuration
+- `MODEL_ID`: AI model identifier (default: `google/gemma-3-27b-it`)
+- `INFERENCE_SERVER_URL`: URL for the inference server (default: `http://vllm-server:5000/v1`)
+- `MAX_RETRIES`: Number of retries for API calls (default: `3`)
+- `RETRY_DELAY`: Delay between retries (default: `2` seconds)
+- `REQUEST_TIMEOUT`: Timeout for API requests (default: `30` seconds)
 
-Configure the following variables as needed:
+### Application Settings
 
-| Variable             | Description                          | Default                        |
-|----------------------|--------------------------------------|--------------------------------|
-| `MODEL_ID`           | Model used for inference             | `"google/gemma-3-27b-it"`      |
-| `INFERENCE_SERVER_URL` | URL for vLLM server                | `"http://localhost:5000/v1"`   |
-| `VECTOR_DB_PATH`     | Path to FAISS DB                     | `"models/FAISS_INGEST"`        |
-| `CHAINLIT_HOST`      | Host for UI                          | `"0.0.0.0"`                    |
-| `CHAINLIT_PORT`      | Port for UI                          | `8000`                         |
+Modify settings in `Configure.toml`:
 
----
-
-## 🧠 Agent Descriptions
-
-- **Email Composition**: Drafts professional emails with proper academic tone.
-- **Research Assistant**: Guides research structure, citation styles, and literature organization.
-- **Academic Guide**: Offers deep explanations on theories and concepts.
-- **Resource Guide**: Provides links and context to UNT departments, contacts, and services.
-- **General Assistant**: Answers miscellaneous questions about UNT.
+- **Telemetry**: Enable or disable telemetry (`enable_telemetry = true`).
+- **Session Timeout**: Set session expiration duration (`user_session_timeout = 1296000` seconds).
+- **CORS Configuration**: Define allowed origins (`allow_origins = ["*"]`).
 
 ---
 
-## 🤝 Contributing
+## Dependencies
 
-We welcome issues, ideas, and PRs. Please ensure code is clean, modular, and well-documented.
+Install Python dependencies listed in `requirements.txt`:
+
+- `chainlit>=0.7.0`
+- `openai>=1.0.0`
+- `python-dotenv>=1.0.0`
+- `requests>=2.31.0`
+- `tenacity>=8.2.0`
 
 ---
 
-## 📄 License
+## Usage
 
-MIT License. See [LICENSE](./LICENSE) for full text.
-```
+Visit the application at [http://genai.unt.edu](http://genai.unt.edu) after starting the containers.
+
+### Starter Prompts
+
+Use predefined starter prompts for common tasks:
+
+- Compose an email to a professor.
+- Structure a research paper.
+- Explain academic concepts like quantum mechanics.
+- Redirect to UNT graduate admissions requirements.
 
 ---
+
+## Contributing
+
+We welcome contributions from the community! To contribute:
+
+1. Fork this repository.
+2. Create a feature branch (`git checkout -b feature-name`).
+3. Commit your changes (`git commit -m "Add feature"`).
+4. Push your branch (`git push origin feature-name`).
+5. Open a pull request.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+## Contact
+
+For support or inquiries, please contact us at [abinesha312@gmail.com.com](mailto:abinesha312@gmail.com).
