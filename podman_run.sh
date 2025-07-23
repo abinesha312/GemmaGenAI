@@ -12,6 +12,21 @@ if ! command -v nvidia-smi &> /dev/null; then
     exit 1
 fi
 
+# Define custom runtime path (adjust if necessary)
+CRUN_RUNTIME="/home/${USER}/l/bin/crun"
+if [ ! -x "${CRUN_RUNTIME}" ]; then
+    echo "Custom runtime ${CRUN_RUNTIME} not found or not executable." 
+    # Optionally, try finding crun in standard paths
+    # CRUN_RUNTIME=$(command -v crun)
+    # if [ -z "${CRUN_RUNTIME}" ]; then
+    #    echo "Could not find crun runtime anywhere. Exiting."
+    #    exit 1
+    # fi
+    # echo "Using crun found at: ${CRUN_RUNTIME}"
+    # For now, we exit if the specified one isn't found
+    exit 1
+fi
+
 # Create necessary directories
 echo "Creating required directories..."
 mkdir -p models/FAISS_INGEST/vectorstore
@@ -28,26 +43,31 @@ podman pod create --name app-pod -p 5000:5000 -p 8000:8000
 
 # Build images
 echo "Building vLLM server image..."
-DOCKER_BUILDKIT=1 podman build -t localhost/vllm-server -f Containerfile.vllm .
+DOCKER_BUILDKIT=1 podman build --no-cache -t localhost/vllm-server:latest -f Containerfile.vllm . || { echo "vLLM Image Build Failed!"; exit 1; }
 
 echo "Building Chainlit app image..."
-DOCKER_BUILDKIT=1 podman build -t localhost/chainlit-app -f Containerfile.chainlit .
+DOCKER_BUILDKIT=1 podman build --no-cache -t localhost/chainlit-app:latest -f Containerfile.chainlit . || { echo "Chainlit Image Build Failed!"; exit 1; }
 
 # Start vLLM server
 echo "Starting vLLM server..."
-podman --runtime /home/${USER}/l/bin/crun run --device nvidia.com/gpu=4,5,6,7 -d \
+podman run \
+    --runtime="${CRUN_RUNTIME}" \
+    --device=nvidia.com/gpu=0 \
+    --device=nvidia.com/gpu=1 \
+    --device=nvidia.com/gpu=2 \
+    --device=nvidia.com/gpu=3 \
+    -d \
     --pod app-pod \
     --name vllm-server \
     --security-opt=label=disable \
-    -e NVIDIA_VISIBLE_DEVICES=all \
+    -e NVIDIA_VISIBLE_DEVICES=0,1,2,3 \
     -e NVIDIA_DRIVER_CAPABILITIES=compute,utility \
-    -e CUDA_VISIBLE_DEVICES=0,1,2,3 \
     -v "${PWD}/models:/home/models:Z" \
-    localhost/vllm-server
+    localhost/vllm-server:latest
 
 # Wait for vLLM server to start
 echo "Waiting for vLLM server to initialize..."
-sleep 10
+sleep 15
 
 # Start Chainlit app
 echo "Starting Chainlit app..."
@@ -57,7 +77,7 @@ podman run -d \
     --security-opt=label=disable \
     -v "${PWD}/models:/home/models:Z" \
     -e VECTOR_DB_PATH=/home/models/FAISS_INGEST/vectorstore/db_faiss \
-    localhost/chainlit-app
+    localhost/chainlit-app:latest
 
 echo "Application started!"
 echo "vLLM server is accessible at: http://localhost:5000"

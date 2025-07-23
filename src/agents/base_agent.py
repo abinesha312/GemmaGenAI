@@ -11,7 +11,9 @@ from config.settings import (
     INFERENCE_SERVER_URL,
     MAX_RETRIES,
     RETRY_DELAY,
-    REQUEST_TIMEOUT
+    REQUEST_TIMEOUT,
+    MAX_TOKENS,
+    TEMPERATURE
 )
 from utils.vector_db import VectorDBManager
 
@@ -42,6 +44,24 @@ class BaseAgent(ABC):
         self.collected_inputs = {}
         self.waiting_for_input = False
         self.current_input_key = None
+        # If the subclass sets query_type and didn't explicitly set required_inputs,
+        # auto-generate required_inputs from the Pydantic model fields
+        if hasattr(self, "query_type") and not self.required_inputs and getattr(self, "query_type") is not None:
+            try:
+                model_cls = getattr(self, "query_type")
+                # Handle Pydantic v1 (__fields__) and v2 (model_fields)
+                if hasattr(model_cls, "__fields__"):
+                    fields_map = model_cls.__fields__  # type: ignore
+                else:
+                    fields_map = model_cls.model_fields  # type: ignore
+                for fname, f in fields_map.items():
+                    # Determine if the field is required
+                    required = getattr(f, "required", False)
+                    if required:
+                        question = f.description or f"Please provide {fname.replace('_',' ')}."
+                        self.required_inputs.append({"key": fname, "question": question})
+            except Exception as e:
+                logging.getLogger(__name__).warning(f"Auto-generation of required_inputs failed: {e}")
     
     @abstractmethod
     def get_system_prompt(self) -> str:
@@ -147,14 +167,29 @@ class BaseAgent(ABC):
                 if context:
                     messages[-1]["content"] += context
             
+            # First, test if the server is reachable with a quick timeout
+            try:
+                test_client = OpenAI(
+                    api_key="EMPTY",
+                    base_url=INFERENCE_SERVER_URL,
+                    timeout=3.0  # Very short timeout just for connectivity check
+                )
+                test_client.models.list()
+                logger.info("LLM server is reachable")
+            except Exception as conn_err:
+                logger.error(f"Cannot reach LLM server: {str(conn_err)}")
+                return "I'm having trouble connecting to the AI service. The LLM server appears to be unreachable. Please check that it's running at the configured URL."
+                
+            # If server is reachable, proceed with retries
+            last_error = None
             for attempt in range(MAX_RETRIES):
                 try:
                     # Make the inference request using the OpenAI client
                     response = client.chat.completions.create(
                         model=MODEL_ID,
                         messages=messages,
-                        max_tokens=500,
-                        temperature=0.7
+                        max_tokens=MAX_TOKENS,
+                        temperature=TEMPERATURE
                     )
                     
                     # Extract and log the response content
@@ -163,16 +198,30 @@ class BaseAgent(ABC):
                     return reply
                     
                 except Exception as e:
+                    last_error = e
                     logger.error(f"Attempt {attempt + 1}/{MAX_RETRIES} failed: {str(e)}")
                     if attempt < MAX_RETRIES - 1:
                         time.sleep(RETRY_DELAY)
                         continue
                     else:
-                        raise
+                        # If we've exhausted retries, return a user-friendly error
+                        error_message = (
+                            "I apologize, but I'm having trouble generating a response. "
+                            "This could be due to:\n"
+                            "1. The request is taking too long\n"
+                            "2. The server is overloaded\n"
+                            "3. The query is too complex\n\n"
+                            "Please try:\n"
+                            "1. Simplifying your question\n"
+                            "2. Breaking it into smaller parts\n"
+                            "3. Trying again in a few moments\n\n"
+                            f"Error details: {str(last_error)}"
+                        )
+                        return error_message
                         
         except Exception as e:
             error_message = (
-                "I apologize, but I'm having trouble connecting to the AI service at the moment. "
+                "I apologize, but I'm having trouble processing your request. "
                 "This could be due to:\n"
                 "1. The AI service is not running\n"
                 "2. Network connectivity issues\n"
@@ -187,3 +236,6 @@ class BaseAgent(ABC):
         self.collected_inputs = {}
         self.waiting_for_input = False
         self.current_input_key = None 
+
+    def is_waiting_for_input(self) -> bool:
+        return self.current_input_key is not None 

@@ -15,6 +15,13 @@ class EmailComposeAgent(BaseAgent):
     def __init__(self):
         super().__init__()
         self.system_prompt = EMAIL_AGENT_PROMPT
+        # Define required inputs for interactive collection
+        self.required_inputs = [
+            {"key": "recipient_type", "question": "Who is the recipient (e.g., professor, advisor)?", "required": True},
+            {"key": "purpose", "question": "What is the purpose of the email?", "required": True},
+            {"key": "details", "question": "Any additional details? (optional)", "required": False},
+            {"key": "tone", "question": "Preferred tone? (optional, default professional)", "required": False}
+        ]
     
     def get_system_prompt(self) -> str:
         """Return the specialized system prompt for this agent"""
@@ -91,6 +98,18 @@ class EmailComposeAgent(BaseAgent):
 """
         return formatted
 
+    # Override get_response to use collected_inputs when available
+    async def get_response(self, messages, attachments=None):
+        if not isinstance(messages, list) and self.collected_inputs:
+            # Build context string from collected inputs
+            context_lines = "\n".join([f"{k.replace('_',' ').title()}: {v}" for k, v in self.collected_inputs.items()])
+            user_prompt = f"Please compose a professional email with the following context:\n{context_lines}"
+            messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        return await super().get_response(messages, attachments)
+
 
 class ResearchPaperAgent(BaseAgent):
     """Agent specialized in helping with research paper composition and analysis."""
@@ -98,6 +117,13 @@ class ResearchPaperAgent(BaseAgent):
     def __init__(self):
         super().__init__()
         self.system_prompt = RESEARCH_AGENT_PROMPT
+        # Required inputs for interactive mode
+        self.required_inputs = [
+            {"key": "paper_topic", "question": "What is the research paper topic?", "required": True},
+            {"key": "academic_level", "question": "Academic level? (optional)", "required": False},
+            {"key": "paper_length", "question": "Length? (optional)", "required": False},
+            {"key": "requirements", "question": "Specific requirements? (optional)", "required": False}
+        ]
     
     def get_system_prompt(self) -> str:
         """Return the specialized system prompt for this agent"""
@@ -173,6 +199,16 @@ class ResearchPaperAgent(BaseAgent):
 """
         return formatted
 
+    async def get_response(self, messages, attachments=None):
+        if not isinstance(messages, list) and self.collected_inputs:
+            context_lines = "\n".join([f"{k.replace('_',' ').title()}: {v}" for k, v in self.collected_inputs.items()])
+            user_prompt = f"Please provide guidance for writing a research paper with the following context:\n{context_lines}"
+            messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        return await super().get_response(messages, attachments)
+
 
 class AcademicConceptsAgent(BaseAgent):
     """Agent specialized in explaining academic concepts and theories."""
@@ -180,6 +216,12 @@ class AcademicConceptsAgent(BaseAgent):
     def __init__(self):
         super().__init__()
         self.system_prompt = ACADEMIC_AGENT_PROMPT
+        self.required_inputs = [
+            {"key": "subject_area", "question": "Subject area?", "required": True},
+            {"key": "concept", "question": "Concept?", "required": True},
+            {"key": "difficulty_level", "question": "Difficulty level? (optional)", "required": False},
+            {"key": "prerequisites", "question": "Prerequisites? (optional)", "required": False}
+        ]
     
     def get_system_prompt(self) -> str:
         """Return the specialized system prompt for this agent"""
@@ -255,6 +297,16 @@ class AcademicConceptsAgent(BaseAgent):
 """
         return formatted
 
+    async def get_response(self, messages, attachments=None):
+        if not isinstance(messages, list) and self.collected_inputs:
+            context_lines = "\n".join([f"{k.replace('_',' ').title()}: {v}" for k, v in self.collected_inputs.items()])
+            user_prompt = f"Please explain the following academic concept with the given context:\n{context_lines}"
+            messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        return await super().get_response(messages, attachments)
+
 
 class RedirectAgent(BaseAgent):
     """Agent specialized in redirecting users to appropriate UNT resources."""
@@ -262,6 +314,11 @@ class RedirectAgent(BaseAgent):
     def __init__(self):
         super().__init__()
         self.system_prompt = REDIRECT_AGENT_PROMPT
+        self.required_inputs = [
+            {"key": "resource_type", "question": "Type of resource?", "required": True},
+            {"key": "specific_need", "question": "Specific need? (optional)", "required": False},
+            {"key": "department", "question": "Department? (optional)", "required": False}
+        ]
     
     def get_system_prompt(self) -> str:
         """Return the specialized system prompt for this agent"""
@@ -336,6 +393,16 @@ class RedirectAgent(BaseAgent):
 *Note: Please verify the availability and specific requirements of these resources by visiting the provided links or contacting the respective departments.*
 """
         return formatted
+
+    async def get_response(self, messages, attachments=None):
+        if not isinstance(messages, list) and self.collected_inputs:
+            context_lines = "\n".join([f"{k.replace('_',' ').title()}: {v}" for k, v in self.collected_inputs.items()])
+            user_prompt = f"Please provide information about UNT resources with the following context:\n{context_lines}"
+            messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+        return await super().get_response(messages, attachments)
 
 
 class GeneralAgent(BaseAgent):

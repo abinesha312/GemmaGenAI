@@ -1,3 +1,4 @@
+# flake8: noqa
 from .specialized_agents import (
     EmailComposeAgent,
     ResearchPaperAgent,
@@ -5,6 +6,8 @@ from .specialized_agents import (
     RedirectAgent,
     GeneralAgent
 )
+from .vision_agent import VisionAgent
+from .planner_agent import PlannerAgent
 from models.classification import PromptClassifier, AgentType
 
 # Initialize the classifier
@@ -16,20 +19,24 @@ agents = {
     AgentType.RESEARCH: ResearchPaperAgent(),
     AgentType.ACADEMIC: AcademicConceptsAgent(),
     AgentType.REDIRECT: RedirectAgent(),
-    AgentType.GENERAL: GeneralAgent()
+    AgentType.PLANNER: PlannerAgent(),
+    AgentType.GENERAL: GeneralAgent(),
+    AgentType.VISION: VisionAgent()
 }
 
-def determine_agent_type(message: str) -> str:
+def determine_agent_type(message: str, has_attachment: bool=False) -> str:
     """
     Determine which agent should handle the message using the classification system.
     
     Args:
         message: The user's message to classify
+        has_attachment: Whether the message contains an attachment
         
     Returns:
         The type of agent that should handle the message
     """
-    # Get classification result
+    if has_attachment:
+        return AgentType.VISION
     result = classifier.classify_message(message)
     
     # Log classification details
